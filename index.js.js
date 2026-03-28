@@ -8,10 +8,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /**
- * USSD ROUTE
+ * 🧠 USSD ROUTE (FOODER CORE LOGIC)
  */
 app.post('/ussd', (req, res) => {
     const { phoneNumber, text } = req.body;
+
+    // 🔥 DEBUG LOGS (VERY IMPORTANT)
+    console.log("🔥 USSD REQUEST RECEIVED");
+    console.log("Phone:", phoneNumber);
+    console.log("Text:", text);
 
     let response = '';
 
@@ -38,7 +43,7 @@ app.post('/ussd', (req, res) => {
         response = `END Your phone number is ${phoneNumber}`;
     }
 
-    // FOOD ORDER MENU
+    // FOOD MENU
     else if (text === '2') {
         response = `CON Order Food 🍔
 1. Burger
@@ -58,7 +63,7 @@ app.post('/ussd', (req, res) => {
         response = `END Thank you for using FOODER ❤️`;
     }
 
-    // SAFETY FALLBACK
+    // FALLBACK
     else {
         response = `END Invalid input. Please try again.`;
     }
@@ -68,14 +73,14 @@ app.post('/ussd', (req, res) => {
 });
 
 /**
- * TEST ROUTE (for browser check)
+ * 🌐 TEST ROUTE
  */
 app.get('/', (req, res) => {
     res.send('FOODER is running 🍔🔥');
 });
 
 /**
- * SERVER START (RENDER SAFE)
+ * 🚀 START SERVER (RENDER SAFE)
  */
 const PORT = process.env.PORT || 3000;
 
