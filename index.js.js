@@ -1,11 +1,35 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
+
+// ======================
+// SUPABASE SETUP 💾
+// ======================
+const supabase = createClient(
+    'https://yzyqowjjaitxllqkhode.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6eXFvd2pqYWl0eGxscWtob2RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2ODgzOTIsImV4cCI6MjA5MDI2NDM5Mn0.56tG_ZYf-iPJpDnBUGpVbufPCf9Nk9RWHOYtadLGTRg'
+);
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+/**
+ * 💾 SAVE ORDER FUNCTION
+ */
+async function saveOrder(phone, item) {
+    const { error } = await supabase
+        .from('orders')
+        .insert([{ phone, item }]);
+
+    if (error) {
+        console.log("❌ DB ERROR:", error.message);
+    } else {
+        console.log("✅ ORDER SAVED:", phone, item);
+    }
+}
 
 /**
  * 🧠 USSD ROUTE (FOODER CORE LOGIC)
@@ -13,7 +37,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.post('/ussd', (req, res) => {
     const { phoneNumber, text } = req.body;
 
-    // 🔥 DEBUG LOGS (VERY IMPORTANT)
     console.log("🔥 USSD REQUEST RECEIVED");
     console.log("Phone:", phoneNumber);
     console.log("Text:", text);
@@ -22,7 +45,7 @@ app.post('/ussd', (req, res) => {
 
     // FIRST SCREEN
     if (text === '') {
-        response = `CON Welcome to FOODER 🍔
+        response = `CON 🍔 FOODER MENU
 1. My Account
 2. Order Food
 3. Exit`;
@@ -50,12 +73,17 @@ app.post('/ussd', (req, res) => {
 2. Pizza`;
     }
 
+    // ======================
+    // SAVE TO DATABASE HERE 💾
+    // ======================
     else if (text === '2*1') {
-        response = `END You ordered a Burger 🍔. We are preparing it!`;
+        saveOrder(phoneNumber, "Burger");
+        response = `END 🍔 Burger ordered successfully!`;
     }
 
     else if (text === '2*2') {
-        response = `END You ordered a Pizza 🍕. We are preparing it!`;
+        saveOrder(phoneNumber, "Pizza");
+        response = `END 🍕 Pizza ordered successfully!`;
     }
 
     // EXIT
@@ -80,7 +108,7 @@ app.get('/', (req, res) => {
 });
 
 /**
- * 🚀 START SERVER (RENDER SAFE)
+ * 🚀 START SERVER
  */
 const PORT = process.env.PORT || 3000;
 
