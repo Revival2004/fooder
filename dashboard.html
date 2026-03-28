@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FOODER Dashboard 🍔</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ffcc00;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+
+        th {
+            color: #ffcc00;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>🍔 FOODER ORDERS DASHBOARD</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Phone</th>
+                <th>Item</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody id="ordersTable"></tbody>
+    </table>
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabaseUrl = "https://yzyqowjjaitxllqkhode.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6eXFvd2pqYWl0eGxscWtob2RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2ODgzOTIsImV4cCI6MjA5MDI2NDM5Mn0.56tG_ZYf-iPJpDnBUGpVbufPCf9Nk9RWHOYtadLGTRg";
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function loadOrders() {
+    const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.log(error);
+        return;
+    }
+
+    const table = document.getElementById("ordersTable");
+    table.innerHTML = "";
+
+    data.forEach(order => {
+        table.innerHTML += `
+            <tr>
+                <td>${order.phone}</td>
+                <td>${order.item}</td>
+                <td>${new Date(order.created_at).toLocaleString()}</td>
+            </tr>
+        `;
+    });
+}
+
+loadOrders();
+
+// refresh every 5 seconds (live dashboard 🔥)
+setInterval(loadOrders, 5000);
+</script>
+
+</body>
+</html>
